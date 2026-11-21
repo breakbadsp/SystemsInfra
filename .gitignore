@@ -1,0 +1,37 @@
+# Build output
+build/
+build-*/
+out/
+cmake-build-*/
+target/
+*.o
+*.a
+*.so
+*.ptx
+*.cubin
+*.fatbin
+
+# Profiler and benchmark artifacts (commit summaries in RESULTS.md, not raw dumps)
+*.nsys-rep
+*.ncu-rep
+*.sqlite
+perf.data*
+*.svg.tmp
+
+# Large inputs (ITCH files, model weights)
+data/
+*.gz
+*.safetensors
+*.gguf
+*.bin
+
+# Python
+__pycache__/
+.venv/
+*.pyc
+
+# Editors
+.vscode/
+.idea/
+.cache/
+compile_commands.json
