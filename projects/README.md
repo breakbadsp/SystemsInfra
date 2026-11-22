@@ -2,14 +2,14 @@
 
 Fourteen projects. Each gets its own folder here (`projects/si-NN-name/`) when it starts, created from [the project template](../templates/project.md). Code, benchmarks, a `RESULTS.md` and a fault/crash test live in that folder.
 
-The live sequence is [`ROADMAP.md`](../ROADMAP.md): weeks 1 to 12 touch a few of these at light depth (SI-01 starts week 1; SI-02 starts week 3). After week 13, pick one or two specializations. Unpicked projects stay here as optional. Skipping them is not a failure.
+Follow the [roadmap](../ROADMAP.md) for the breadth labs. In week 13, choose one specialization and its first depth project. Keep the other projects optional.
 
 **Status:** not started · in progress · done
 
 | ID | Project | Track | When it fits | Status |
 |:--|:--|:--:|:--|:--|
 | SI-01 | [benchkit](#si-01-benchkit) | 1 | Breadth week 1 (required). Finish remaining features when a depth project needs them. | not started |
-| SI-02 | [memlab](#si-02-memlab) | 0 | Started in breadth weeks 3 to 5. Finish in any specialization that still needs machine numbers. | not started |
+| SI-02 | [memlab](#si-02-memlab) | 0 | Started in the breadth memory lab. Finish in any specialization that still needs machine numbers. | not started |
 | SI-03 | [jitterlab](#si-03-jitterlab) | 0, 3 | Low-latency trading depth. Useful for AI host-thread tails. | not started |
 | SI-04 | [SGEMM ladder](#si-04-sgemm-ladder) | 4 | AI inference depth. Week 8 is only a toy kernel. | not started |
 | SI-05 | [Fused kernels](#si-05-fused-kernels) | 4 | AI inference depth, after SI-04. | not started |
@@ -18,14 +18,14 @@ The live sequence is [`ROADMAP.md`](../ROADMAP.md): weeks 1 to 12 touch a few of
 | SI-08 | [Tick-to-trade harness](#si-08-tick-to-trade-harness) | 3 | Low-latency trading depth, after SI-06 and SI-07. | not started |
 | SI-09 | [spinfer](#si-09-spinfer) | 4 | AI inference depth, after SI-04/05. Week 9 only runs vLLM or llama.cpp. | not started |
 | SI-10 | [Jepsen-style checker](#si-10-jepsen-style-checker) | 2 | Reliability depth. Pairs with trading (exchange, libvsr) or AI (SI-14). | not started |
-| SI-11 | [Storage engine](#si-11-storage-engine) | 5, 2 | Reliability depth. Optional for trading sequence store or AI checkpoint durability. Week 12 is io_uring light depth only. | not started |
+| SI-11 | [Storage engine](#si-11-storage-engine) | 5, 2 | Reliability depth. Optional for trading sequence store or AI checkpoint durability. The breadth lab covers restart recovery. | not started |
 | SI-12 | [Upstream perf PR](#si-12-upstream-perf-pr) | 4 | AI inference depth, once you can profile a real engine (after week 9, stronger after SI-09). | not started |
 | SI-13 | [Tensor parallelism](#si-13-tensor-parallelism) | 4 | AI serving depth, after SI-09. | not started |
 | SI-14 | [Cache-aware router](#si-14-cache-aware-router) | 4, 2 | AI serving plus reliability, after SI-09. | not started |
 
 Dependencies: SI-01 before serious measurement · SI-04/05 before SI-09 · SI-09 before SI-12, SI-13 · SI-13 before SI-14 if the router fronts spinfer · SI-06 before SI-07 before SI-08.
 
-Specialization mapping (same table as the roadmap, kept here next to the catalog):
+## Specializations
 
 | Specialization | Primary projects | Optional |
 |:--|:--|:--|

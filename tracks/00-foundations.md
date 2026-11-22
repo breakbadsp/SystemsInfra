@@ -10,26 +10,7 @@ Each checkbox below has a short block: what to **read** (primary sources first),
 
 ## How to learn this track
 
-### The per-topic loop
-
-Run this loop for every checkbox. It takes about 2 to 4 hours per topic; topics that feed SI-02 or SI-03 count as project time.
-
-1. **Predict (10 min).** Before reading, write down in the log entry what I expect: a number with units ("L3 hit is about 40 cycles"), or a sentence ("branchless wins only on unpredictable data"). A wrong prediction is the most useful thing this loop produces.
-2. **Read the primary source (45 to 60 min).** The manual, the kernel doc, the paper or the book chapter listed under the topic. Blog posts and AI answers come after, as a cross-check, not instead.
-3. **Build and measure (60 to 90 min).** Write the smallest program that shows the effect. Pin it (`taskset -c N`), run it several times, record p50/p99/p99.9/max with CPU, kernel, compiler and the exact command (repo rule 1). Reuse SI-01 benchkit once it exists.
-4. **Break it (20 min).** Change one thing that should make the effect worse or disappear, and confirm that it does. If breaking it does not change the number, I was measuring something else.
-5. **Explain from memory (20 min).** Close every tab and write `notes/<topic>.md` in my own words, from `templates/note.md`. Then reopen the source and correct it. Mark corrections, since they show what I had not understood.
-6. **Log it (10 min).** Numbers, prediction vs result, one sentence on what surprised me. Add 3 to 5 quiz questions to the end of the note (see spaced recall below).
-
-### "Done" for a topic means
-
-Tick a checkbox only when all of these are true:
-
-- My prediction and the measured result are both in the log, with the environment and exact command.
-- I broke it on purpose and the number moved the way I expected (or I explained why it did not).
-- `notes/<topic>.md` exists, was written from memory first, and was checked against the primary source.
-- The note ends with 3 to 5 quiz questions.
-- I can explain the topic out loud in two minutes without notes, including one number from my own hardware.
+Use the [weekly workflow](../ROADMAP.md#weekly-workflow) for each depth lab. Tick a topic checkbox when its **Know** condition is supported by the evidence in your entry. Use older topics for optional recall practice.
 
 ### Using AI without outsourcing understanding
 
@@ -54,7 +35,7 @@ AI is fast at generating code and explanations, and confidently wrong about spec
 
 - Ask for the source: "Which manual section, kernel doc or man page says this?" Then open it. If it cannot name one, treat the claim as unverified.
 - Cross-check against at least one primary source from the topic block and against my own measurement.
-- Keep a short "AI was wrong" list in `notes/ai-errors.md`. It calibrates how far to trust it, and each entry is a good quiz question.
+- Turn a corrected AI answer into a recall question if it helps you practice.
 - Prefer asking it to explain *why my result differs from the source* over asking *what the answer is*.
 
 **Prompts to reuse** (fill in the brackets):
@@ -94,12 +75,9 @@ the timed region, and run-to-run variance. Say which issue would change the
 result most and how I would prove it.
 ```
 
-### Spaced recall
+### Optional recall practice
 
-- Every note ends with 3 to 5 quiz questions, kept in the note itself.
-- **Weekly (15 min):** pick 5 questions from notes older than a week, answer them on paper without looking, then check. Misses go into the next week's set.
-- **Monthly (1 hour):** re-derive one headline number from scratch on the other machine (for example L3 latency or context-switch cost) without looking at the old code. If the number differs, explain why.
-- Use AI to run the weekly quiz if useful (first prompt above, pasting the questions), but grade against my notes and sources.
+Answer questions from older notes and check your answers against the sources. To revisit a measurement, predict the result again and compare it with a fresh run.
 
 ### Tools used throughout
 
@@ -154,8 +132,8 @@ Book references below: "Bakhvalov ch. N" is a chapter of *Performance Analysis a
 
 - [ ] TLB, page walks, huge pages (THP vs explicit), `mlock`
   - **Read:** Drepper 4.3 (Optimizing Page Table Access), also as [LWN part 3](https://lwn.net/Articles/253361/). Kernel docs: [transparent huge pages](https://docs.kernel.org/admin-guide/mm/transhuge.html), [HugeTLB pages](https://docs.kernel.org/admin-guide/mm/hugetlbpage.html). [Algorithmica: paging](https://en.algorithmica.org/hpc/cpu-cache/paging/). [mlock(2)](https://man7.org/linux/man-pages/man2/mlock.2.html).
-  - **Do (SI-02):** rerun the pointer chase at 256 MiB to 1 GiB with 4 KiB pages, `madvise(MADV_HUGEPAGE)`, and `MAP_HUGETLB`. Confirm I actually got huge pages (`AnonHugePages` / `HugePages_*` in `/proc/meminfo`). Count dTLB misses with `perf stat` (check `perf list` for the event names on my CPU).
-  - **Break:** set THP to `never` in `/sys/kernel/mm/transparent_hugepage/enabled` and rerun; the curve should return to the 4 KiB shape.
+  - **Do (SI-02):** rerun the pointer chase at 256 MiB to 1 GiB with 4 KiB pages, `madvise(MADV_HUGEPAGE)`, and `MAP_HUGETLB`. Verify the benchmark mapping in `/proc/PID/smaps`. Check `AnonHugePages` for PMD-sized THP and the HugeTLB fields for explicit HugeTLB. Count dTLB misses with `perf stat` (check `perf list` for the event names on my CPU).
+  - **Break:** Repeat with `MADV_NOHUGEPAGE` on a new anonymous mapping before touching it. Verify the backing and compare the curve.
   - **Know:** my TLB reach (entries times page size) from the vendor docs, and the measured latency difference between 4 KiB and 2 MiB pages at 1 GiB.
 
 - [ ] Coherence (MESI/MOESI), false sharing, cross-core and cross-socket line transfer cost
