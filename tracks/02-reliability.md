@@ -1,6 +1,8 @@
 # Track 2: Reliability and correctness
 
-Systems that stay correct when processes crash, disks lie, clocks drift and networks partition. Runs through every quarter; Q5 goes deep.
+Systems that stay correct when processes crash, disks lie, clocks drift and networks partition. The "break it on purpose" rule and the work assignment run through every week. Week 11 is TLA+ on a small order state machine. Going deep on this track is a week 13 choice (SI-10, SI-11, more TLA+). Keep ticking checkboxes here.
+
+The live week-by-week plan is [`ROADMAP.md`](../ROADMAP.md).
 
 ## Failure models
 
