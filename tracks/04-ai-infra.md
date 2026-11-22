@@ -2,6 +2,8 @@
 
 LLM inference infrastructure: GPU kernels, serving engines, distributed serving. The systems foundations carry over from trading work; the gap is **GPUs and model internals**.
 
+The live week-by-week plan is [`ROADMAP.md`](../ROADMAP.md). Breadth week 8 is a toy CUDA kernel. Week 9 runs vLLM or llama.cpp. The phase lengths below are the old depth-first layout and remain the catalog for AI specialization after week 13. Keep ticking checkboxes here.
+
 **Trading-systems overlap:** the inference request path is an order path. Gateway → queue → pinned scheduler → GPU worker is the same pipeline as modern_exchng_cpp, with the same problems: tail latency, batching against latency, allocation-free hot paths.
 
 ---
@@ -74,7 +76,7 @@ FSDP/ZeRO, activation checkpointing, Megatron-style 3D parallelism, checkpointin
 - ★ Hwu, Kirk, El Hajj, *Programming Massively Parallel Processors* (4th ed.)
 - ★ Simon Boehm, [How to Optimize a CUDA Matmul Kernel](https://siboehm.com/articles/22/CUDA-MMM)
 - ★ [GPU MODE lectures](https://github.com/gpu-mode/lectures)
-- NVIDIA [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/) and [Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/)
+- NVIDIA [CUDA C++ Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html) and [Best Practices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 - [Triton tutorials](https://triton-lang.org/main/getting-started/tutorials/index.html), [CUTLASS](https://github.com/NVIDIA/cutlass)
 
 **Inference**
@@ -91,5 +93,5 @@ FSDP/ZeRO, activation checkpointing, Megatron-style 3D parallelism, checkpointin
 
 ## Hardware
 
-- Phases A–C: one NVIDIA GPU (a consumer RTX card, Ampere or newer). Rent an A100/H100 by the hour for production-like numbers.
+- Phases A to C: one NVIDIA GPU (a consumer RTX card, Ampere or newer). Rent an A100/H100 by the hour for production-like numbers.
 - Phase D: rent a multi-GPU node for focused, scripted sessions.

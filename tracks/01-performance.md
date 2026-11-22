@@ -2,6 +2,8 @@
 
 How to measure, find the bottleneck and prove an improvement. This is the method used across every other track.
 
+The live week-by-week plan is [`ROADMAP.md`](../ROADMAP.md). Week 1 starts SI-01 (timers and histograms). Week 7 is `perf` and flame graphs. Remaining items are for after week 13, in whichever specialization needs them. Keep ticking checkboxes here.
+
 ## Measurement
 
 - [ ] Timers: `rdtsc`/`rdtscp`, invariant TSC, calibration, `clock_gettime` cost

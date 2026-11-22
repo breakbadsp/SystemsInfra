@@ -2,6 +2,8 @@
 
 Durable state: how bytes reach the disk safely and quickly, and how state stays consistent across machines.
 
+The live week-by-week plan is [`ROADMAP.md`](../ROADMAP.md). The storage lab checks restart recovery and compares I/O paths where available. SI-11 is reliability depth after week 13, if that specialization is chosen. Keep ticking checkboxes here.
+
 ## Storage hardware and kernel
 
 - [ ] NVMe: queues, namespaces, write amplification, FTL behaviour, power-loss protection

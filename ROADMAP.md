@@ -1,84 +1,139 @@
 # Roadmap
 
-18 months at about 8–10 hours a week. One **primary track** per quarter, with project work in that track. Reliability (track 2) runs through every quarter: each project gets a fault or crash test, and Q5 goes deep on it.
+Spend 8 to 10 hours a week on the shared core. Use weeks 1 to 12 to try performance, robustness, and domain-specific work. In week 13, choose a specialization and one depth project from the [project catalog](projects/README.md#specializations). Keep the other projects optional.
 
-Quarters alternate between trading and AI so neither goes stale, and the measurement core comes first because every later project reuses it.
+## Weekly workflow
 
----
+Read the assigned material, write a prediction, and run one lab. Record the run command, environment, evidence, and outcome in one [weekly entry](templates/weekly-report.md). Apply the lesson to an order management system (OMS) if useful. Follow the [repository rules](README.md#rules) when you record that lesson.
 
-## Q1 · Dec 2026 – Feb 2027: Measurement core
+Each lab has a pass condition. Record `passed`, `needs rework`, or `blocked`. If the lab cannot run, record the blocker and what would resolve it. Tick a [track](README.md#tracks) item when your evidence covers that item. Leave unfinished assessments open in the log.
 
-**Tracks:** [0 Foundations](tracks/00-foundations.md), [1 Performance](tracks/01-performance.md)
+Answer the two questions with your notes closed. Check your answers against the sources and results. For performance labs, keep the workload fixed, repeat a baseline and one controlled variant, and explain any difference or lack of a difference.
 
-| Project | Weeks | Why now |
-|:--|:--:|:--|
-| [SI-01 benchkit](projects/README.md#si-01-benchkit) | 3 | Shared latency/throughput harness every later project uses |
-| [SI-02 memlab](projects/README.md#si-02-memlab) | 4 | Measured cache, TLB, NUMA and false-sharing numbers for my own machines |
-| [SI-03 jitterlab](projects/README.md#si-03-jitterlab) | 3 | OS jitter, and the measured effect of each Linux tuning knob |
+## Week 1 · 2026-11-23 · Timers and latency histograms
 
-**Exit:** I can say, with numbers from my own hardware, what an L1/L2/L3/DRAM access, a context switch, a syscall, a cross-core cache-line transfer and an IRQ cost.
+**Read** [`clock_gettime(2)`](https://man7.org/linux/man-pages/man2/clock_gettime.2.html) and [How NOT to Measure Latency](https://www.youtube.com/watch?v=lJ8ydIuPFeU).
 
-## Q2 · Mar – May 2027: GPUs and CUDA
+**Lab** Start [SI-01 benchkit](projects/README.md#si-01-benchkit) with a pinned `CLOCK_MONOTONIC` timing loop and percentile output. Measure the empty region and a short repeatable workload. Add a known delay to a small fraction of samples. Keep TSC calibration and a reusable histogram library for depth.
 
-**Track:** [4 AI infra](tracks/04-ai-infra.md), phases A–B
+**Pass** Record the sample count, timer overhead, and baseline and delayed distributions. Explain which statistics show the injected delay.
 
-| Project | Weeks | |
-|:--|:--:|:--|
-| Model internals + C++ CPU forward pass | 3 | Phase A of the track |
-| [SI-04 SGEMM ladder](projects/README.md#si-04-sgemm-ladder) | 4 | ≥ 80% of cuBLAS |
-| [SI-05 fused kernels](projects/README.md#si-05-fused-kernels) | 5 | Softmax, RMSNorm, FlashAttention-style forward pass |
+**Recall** How does timer overhead affect a short measurement? How can a closed-loop driver hide the latency of requests that would have arrived during a stall?
 
-**Exit:** I can read a Nsight Compute report and name the limiter, and SI-04 reaches 80% of cuBLAS.
+## Week 2 · 2026-11-30 · Branch prediction
 
-## Q3 · Jun – Aug 2027: Low-latency trading
+**Read** [CPU microarchitecture](https://github.com/dendibakh/perf-book/tree/main/chapters/3-CPU-Microarchitecture) and [branch prediction](https://github.com/dendibakh/perf-book/tree/main/chapters/10-Optimizing-Branch-Prediction).
 
-**Track:** [3 Low-latency and HFT](tracks/03-low-latency-hft.md)
+**Lab** Run the same branch-heavy loop over sorted and shuffled copies of the same input. Check the optimized assembly for a conditional branch. Verify that both runs produce the same result. Compare cycles and branch misses with `perf stat` where supported.
 
-| Project | Weeks | |
-|:--|:--:|:--|
-| [SI-06 ITCH feed handler](projects/README.md#si-06-itch-feed-handler) | 4 | Full-day replay, book per symbol, ns/msg |
-| [SI-07 kernel-bypass receive](projects/README.md#si-07-kernel-bypass-receive) | 4 | Kernel socket → busy poll → AF_XDP → DPDK |
-| [SI-08 tick-to-trade harness](projects/README.md#si-08-tick-to-trade-harness) | 5 | Timestamps at every hop, end to end |
+**Pass** Record the relative timing and the evidence for your explanation. If hardware counters are unavailable, report the timing and assembly evidence and mark the branch-miss claim unverified.
 
-**Exit:** a measured tick-to-trade distribution, with a breakdown of where each microsecond goes.
+**Recall** Why can input order affect the timing when the output is identical? When can branchless code cost more?
 
-## Q4 · Sep – Nov 2027: Inference engine
+## Week 3 · 2026-12-07 · Caches, prefetching, and TLB
 
-**Track:** [4 AI infra](tracks/04-ai-infra.md), phase C
+**Read** Drepper on [caches](https://lwn.net/Articles/252125/) and the kernel guide to [transparent huge pages](https://docs.kernel.org/admin-guide/mm/transhuge.html#monitoring-usage).
 
-| Project | Weeks | |
-|:--|:--:|:--|
-| [SI-09 spinfer](projects/README.md#si-09-spinfer) | 12 | C++/CUDA engine: paged KV, continuous batching, quantization |
+**Lab** Start [SI-02 memlab](projects/README.md#si-02-memlab). Sweep a randomized pointer chase across working-set sizes that fit in cache and sizes that exceed it. Compare with ordered traversal of the same nodes. At one large size, repeat with base pages and transparent huge pages where available. Use per-mapping advice and verify the benchmark mapping in `/proc/PID/smaps`.
 
-**Exit:** `spinfer` has a published comparison against llama.cpp and vLLM on the same GPU.
+**Pass** Record time per load by working-set size and access order. Relate the results to cache sizes and access order. Report the page-size comparison only if you verify the backing for both runs. Record the reason if that comparison is unavailable.
 
-## Q5 · Dec 2027 – Feb 2028: Reliability and storage
+**Recall** Why does a randomized dependent chain limit prefetching? What must you hold fixed to attribute a timing difference to page size?
 
-**Tracks:** [2 Reliability](tracks/02-reliability.md), [5 Storage](tracks/05-storage-distributed.md)
+## Week 4 · 2026-12-14 · Overload and bounded queues
 
-| Project | Weeks | |
-|:--|:--:|:--|
-| [SI-10 Jepsen-style checker](projects/README.md#si-10-jepsen-style-checker) | 5 | Linearizability checker and fault nemesis, aimed at libvsr and the exchange |
-| [SI-11 storage engine](projects/README.md#si-11-storage-engine) | 6 | WAL + LSM on io_uring, crash-consistency tests |
-| [SI-12 upstream perf PR](projects/README.md#si-12-upstream-perf-pr) | ongoing | A merged PR in vLLM / SGLang / llama.cpp |
+**Read** [Addressing Cascading Failures](https://sre.google/sre-book/addressing-cascading-failures/), sections on queue management and load shedding.
 
-**Exit:** SI-10 has found a real bug, or shown none under a documented fault model. SI-11 survives the crash test suite.
+**Lab** Build a single-worker request processor with a fixed queue capacity and explicit rejection when the queue is full. Drive it on a fixed schedule below capacity, above capacity, and below capacity again. Compare two queue capacities using the same arrival schedule and service time. Measure p99 accepted-request latency, peak queue depth, and rejects for each phase.
 
-## Q6 · Mar – May 2028: Distributed serving
+**Pass** Check that queue depth stays within capacity, every submitted request completes or receives an explicit rejection, and the queue drains after the offered rate drops. Explain the latency and rejection trade-off.
 
-**Track:** [4 AI infra](tracks/04-ai-infra.md), phase D
+**Recall** Why can a larger queue increase tail latency? How would a closed-loop load driver change the overload test?
 
-| Project | Weeks | |
-|:--|:--:|:--|
-| [SI-13 tensor parallelism](projects/README.md#si-13-tensor-parallelism) | 5 | `spinfer` across 2–4 GPUs |
-| [SI-14 cache-aware router](projects/README.md#si-14-cache-aware-router) | 6 | Prefix-affinity routing, failover, fault tests |
+## Week 5 · 2026-12-21 · Coherence and false sharing
 
-**Exit:** measured scaling efficiency for SI-13; SI-14 beats round-robin and survives losing a replica.
+**Read** [Understanding the Processor](https://marabos.nl/atomics/hardware.html) and [`perf-c2c(1)`](https://man7.org/linux/man-pages/man1/perf-c2c.1.html).
 
----
+**Lab** Put two counters on the same cache line, then on separate cache lines. Have two threads on separate cores update one counter each. Hold the iteration count and core placement fixed.
 
-## Adjusting
+**Pass** Verify the counter totals and layouts. Compare time per update across repeated runs. Use `perf c2c` if supported, and record the limits of your evidence.
 
-- **Reorder quarters freely.** Only SI-01 is a hard prerequisite; SI-09 needs SI-04/05, and SI-13/14 need SI-09.
-- **Slipping is fine; skipping the write-up is not.** Better to finish fewer projects with `RESULTS.md` than many without.
-- **Review each quarter:** update the status table in the [README](README.md), and move anything unfinished.
+**Recall** How can writes to different counters contend? What evidence would distinguish false sharing from contention on one counter?
+
+## Week 6 · 2026-12-28 · System calls and scheduling
+
+**Read** [`sched(7)`](https://man7.org/linux/man-pages/man7/sched.7.html) and [`vdso(7)`](https://man7.org/linux/man-pages/man7/vdso.7.html).
+
+**Lab** Run `perf bench sched pipe --threaded` with both threads restricted to one CPU, then with two CPUs available. Record affinity and check thread placement before attributing any difference to cross-CPU wakeups.
+
+**Pass** Record the command, affinity, and repeated timings. Explain which work the end-to-end timing includes and what the experiment can establish about placement.
+
+**Recall** What does the vDSO avoid? Why does a pipe round trip include more than a context switch?
+
+## Week 7 · 2027-01-04 · Profiling
+
+**Read** [`perf-record(1)`](https://man7.org/linux/man-pages/man1/perf-record.1.html) and [CPU flame graphs](https://www.brendangregg.com/FlameGraphs/cpuflamegraphs.html).
+
+**Lab** Profile one earlier lab. Identify the largest source of CPU samples. Change one implementation detail and collect a second profile. Use a user-space sampling profiler if `perf` is unavailable.
+
+**Pass** Save both profiles or record the top stacks and sample counts. Explain the change in samples and compare elapsed time for the same amount of work.
+
+**Recall** What does width represent on a flame graph? When can elapsed time rise without a matching rise in CPU samples?
+
+## Week 8 · 2027-01-11 · GPU execution
+
+**Read** [An Even Easier Introduction to CUDA](https://developer.nvidia.com/blog/even-easier-introduction-cuda/) and the CUDA guide to [timing](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#timing).
+
+**Lab** Build a vector-add kernel and check its output against a CPU reference. Use CUDA events for kernel time. Measure copy and kernel time together with a host timer that waits for the work to finish. Repeat at a second vector size.
+
+**Pass** Verify the output and report both timings for each size. If you can only compile, record what built and mark the lab blocked on GPU execution. Continue to week 9.
+
+**Recall** Which work can the host timer miss without synchronization? When can copies dominate the total time?
+
+## Week 9 · 2027-01-18 · Inference performance
+
+**Read** the introduction to [PagedAttention](https://arxiv.org/abs/2309.06180) and the guide for [vLLM](https://docs.vllm.ai/en/latest/getting_started/quickstart.html) or [llama.cpp](https://github.com/ggml-org/llama.cpp/blob/master/README.md).
+
+**Lab** Run one small model with a short and a long prompt. Hold the model, backend, and generation settings fixed. Record prompt and output token counts. Use llama.cpp on a CPU if a GPU is unavailable.
+
+**Pass** Report the engine version, model, prompt lengths, and measured prefill and decode rates or timings. Explain what changed between runs.
+
+**Recall** Why do prefill and single-token decode use the hardware differently? How does a longer context affect the KV cache?
+
+## Week 10 · 2027-01-25 · Network receive and packet loss
+
+**Read** [Linux network receive path](https://blog.packagecloud.io/monitoring-tuning-linux-networking-stack-receiving-data/) and the [AF_XDP overview](https://docs.kernel.org/networking/af_xdp.html).
+
+**Lab** Send numbered UDP packets to a local receiver at a fixed rate. Repeat with a smaller receive buffer and a slow reader. Compare sequence gaps and socket drop counters. Keep kernel bypass for [SI-07](projects/README.md#si-07-kernel-bypass-receive).
+
+**Pass** Show a run with no gaps and a run with induced drops. Explain where the observed drops occurred and how an application can detect the loss.
+
+**Recall** How can a receiver distinguish packet loss from reordering? Which parts of the physical receive path does a loopback test omit?
+
+## Week 11 · 2027-02-01 · Model checking an order state machine
+
+**Read** the [Learn TLA+ core guide](https://learntla.com/core/index.html) on actions and invariants.
+
+**Lab** Model a small order state machine with fills and cancellation. Check that quantity never goes negative and a cancelled order cannot fill. To check the latter as an invariant, record whether a fill occurred after cancellation in the model state. Add an invalid fill transition to the model.
+
+**Pass** Save the model, TLC configuration, and commands. Show a complete check for the bounded model and a counterexample for the planted failure.
+
+**Recall** What does a passing bounded check establish? Which state in the counterexample first violates the invariant?
+
+## Week 12 · 2027-02-08 · Storage and restart recovery
+
+**Read** [`fsync(2)`](https://man7.org/linux/man-pages/man2/fsync.2.html) and [Efficient IO with io_uring](https://kernel.dk/io_uring.pdf).
+
+**Lab** Build a small append log with numbered records. Acknowledge a batch only after its sync succeeds. Have a separate driver record the acknowledgments, terminate the writer mid-run, restart it, and check the recovered records. Compare synchronous writes with `io_uring` if available. Keep record sizes, batch sizes, synchronization cadence, and filesystem fixed. Submit the sync after the writes complete and check every completion.
+
+**Pass** Recover every acknowledged record and reject or ignore an incomplete final record. Use a test hook to pause after writing a record prefix, then terminate the writer. In a separate run, terminate it after an acknowledgment. If both I/O paths run, compare throughput and time to acknowledgment. Record any unavailable path. This failure test covers writer termination.
+
+**Recall** What can go wrong if you acknowledge before syncing? What additional fault would you inject to test power-loss durability?
+
+## Week 13 · 2027-02-15 · Review and specialization
+
+Rerun one earlier benchmark and one failure test. Compare the new evidence with the earlier result and explain meaningful differences.
+
+Choose one specialization and one first project from the [project catalog](projects/README.md#specializations). Add the choice to the weekly entry. Define the first milestone with a target workload, a correctness property, and an observable pass condition. Record what evidence from the breadth labs led to the choice.
+
+During depth work, use the same weekly entry for one project milestone at a time. Use the project's acceptance checks and `RESULTS.md` to close it.

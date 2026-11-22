@@ -2,26 +2,36 @@
 
 Fourteen projects. Each gets its own folder here (`projects/si-NN-name/`) when it starts, created from [the project template](../templates/project.md). Code, benchmarks, a `RESULTS.md` and a fault/crash test live in that folder.
 
-**Status:** ⬜ not started · ▶ in progress · ✅ done
+Follow the [roadmap](../ROADMAP.md) for the breadth labs. In week 13, choose one specialization and its first depth project. Keep the other projects optional.
 
-| ID | Project | Track | Quarter | Status |
-|:--|:--|:--:|:--:|:--:|
-| SI-01 | [benchkit](#si-01-benchkit) | 1 | Q1 | ⬜ |
-| SI-02 | [memlab](#si-02-memlab) | 0 | Q1 | ⬜ |
-| SI-03 | [jitterlab](#si-03-jitterlab) | 0, 3 | Q1 | ⬜ |
-| SI-04 | [SGEMM ladder](#si-04-sgemm-ladder) | 4 | Q2 | ⬜ |
-| SI-05 | [Fused kernels](#si-05-fused-kernels) | 4 | Q2 | ⬜ |
-| SI-06 | [ITCH feed handler](#si-06-itch-feed-handler) | 3 | Q3 | ⬜ |
-| SI-07 | [Kernel-bypass receive](#si-07-kernel-bypass-receive) | 3 | Q3 | ⬜ |
-| SI-08 | [Tick-to-trade harness](#si-08-tick-to-trade-harness) | 3 | Q3 | ⬜ |
-| SI-09 | [spinfer](#si-09-spinfer) | 4 | Q4 | ⬜ |
-| SI-10 | [Jepsen-style checker](#si-10-jepsen-style-checker) | 2 | Q5 | ⬜ |
-| SI-11 | [Storage engine](#si-11-storage-engine) | 5, 2 | Q5 | ⬜ |
-| SI-12 | [Upstream perf PR](#si-12-upstream-perf-pr) | 4 | Q5 | ⬜ |
-| SI-13 | [Tensor parallelism](#si-13-tensor-parallelism) | 4 | Q6 | ⬜ |
-| SI-14 | [Cache-aware router](#si-14-cache-aware-router) | 4, 2 | Q6 | ⬜ |
+**Status:** not started · in progress · done
 
-Dependencies: SI-01 → everything · SI-04/05 → SI-09 → SI-12, SI-13 → SI-14 · SI-06 → SI-07 → SI-08.
+| ID | Project | Track | When it fits | Status |
+|:--|:--|:--:|:--|:--|
+| SI-01 | [benchkit](#si-01-benchkit) | 1 | Breadth week 1 (required). Finish remaining features when a depth project needs them. | not started |
+| SI-02 | [memlab](#si-02-memlab) | 0 | Started in the breadth memory lab. Finish in any specialization that still needs machine numbers. | not started |
+| SI-03 | [jitterlab](#si-03-jitterlab) | 0, 3 | Low-latency trading depth. Useful for AI host-thread tails. | not started |
+| SI-04 | [SGEMM ladder](#si-04-sgemm-ladder) | 4 | AI inference depth. Week 8 is only a toy kernel. | not started |
+| SI-05 | [Fused kernels](#si-05-fused-kernels) | 4 | AI inference depth, after SI-04. | not started |
+| SI-06 | [ITCH feed handler](#si-06-itch-feed-handler) | 3 | Low-latency trading depth. | not started |
+| SI-07 | [Kernel-bypass receive](#si-07-kernel-bypass-receive) | 3 | Low-latency trading depth, after SI-06. Week 10 is kernel path plus AF_XDP reading only. | not started |
+| SI-08 | [Tick-to-trade harness](#si-08-tick-to-trade-harness) | 3 | Low-latency trading depth, after SI-06 and SI-07. | not started |
+| SI-09 | [spinfer](#si-09-spinfer) | 4 | AI inference depth, after SI-04/05. Week 9 only runs vLLM or llama.cpp. | not started |
+| SI-10 | [Jepsen-style checker](#si-10-jepsen-style-checker) | 2 | Reliability depth. Pairs with trading (exchange, libvsr) or AI (SI-14). | not started |
+| SI-11 | [Storage engine](#si-11-storage-engine) | 5, 2 | Reliability depth. Optional for trading sequence store or AI checkpoint durability. The breadth lab covers restart recovery. | not started |
+| SI-12 | [Upstream perf PR](#si-12-upstream-perf-pr) | 4 | AI inference depth, once you can profile a real engine (after week 9, stronger after SI-09). | not started |
+| SI-13 | [Tensor parallelism](#si-13-tensor-parallelism) | 4 | AI serving depth, after SI-09. | not started |
+| SI-14 | [Cache-aware router](#si-14-cache-aware-router) | 4, 2 | AI serving plus reliability, after SI-09. | not started |
+
+Dependencies: SI-01 before serious measurement · SI-04/05 before SI-09 · SI-09 before SI-12, SI-13 · SI-13 before SI-14 if the router fronts spinfer · SI-06 before SI-07 before SI-08.
+
+## Specializations
+
+| Specialization | Primary projects | Optional |
+|:--|:--|:--|
+| Low-latency trading | SI-02 (finish), SI-03, SI-06, SI-07, SI-08 | The AI catalog. SI-10 if replication matters. SI-11 if durable sequence store matters. |
+| AI inference and serving | SI-04, SI-05, SI-09, SI-12, then SI-13, SI-14 | The trading catalog. SI-03 if host tails matter. SI-11 if durability matters. |
+| Reliability | SI-10, SI-11, further TLA+ | GPU kernels. Feed handler unless it is the system under test. |
 
 ---
 
@@ -143,7 +153,7 @@ HTTP (OpenAI-compatible) → SPSC request queue → pinned scheduler thread
 Milestones: batch-1 generation → paged KV → continuous batching → chunked prefill → INT8/INT4 weight-only quantization → prefix caching → CUDA graphs → load generator (SI-01).
 
 **Acceptance**
-- [ ] Llama-3.2-1B (and one 7–8B model on a large enough GPU) with greedy output matching the reference
+- [ ] Llama-3.2-1B (and one 7 to 8B model on a large enough GPU) with greedy output matching the reference
 - [ ] TTFT, TPOT, tokens/s, p50/p99 against request rate
 - [ ] Comparison table against llama.cpp and vLLM on the same GPU and workload
 - [ ] KV memory waste below 5% under mixed-length load

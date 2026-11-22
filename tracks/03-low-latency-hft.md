@@ -2,6 +2,8 @@
 
 The full path from a packet on the wire to an order on the wire, and every microsecond in between. Builds on modern_exchng_cpp (exchange side) by now building the participant side.
 
+The live week-by-week plan is [`ROADMAP.md`](../ROADMAP.md). Week 10 is the Linux receive path and an AF_XDP reading, not SI-07. SI-06, SI-07 and SI-08 are low-latency trading depth after week 13, if that specialization is chosen. Keep ticking checkboxes here.
+
 ## Market structure
 
 - [ ] Order types, matching rules, auctions, market data levels (L1/L2/L3)

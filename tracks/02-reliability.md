@@ -1,6 +1,8 @@
 # Track 2: Reliability and correctness
 
-Systems that stay correct when processes crash, disks lie, clocks drift and networks partition. Runs through every quarter; Q5 goes deep.
+Systems that stay correct when processes crash, disks lie, clocks drift and networks partition. The breadth labs cover overload, packet loss, model checking, and restart recovery. The depth projects are SI-10 and SI-11.
+
+The live week-by-week plan is [`ROADMAP.md`](../ROADMAP.md).
 
 ## Failure models
 
