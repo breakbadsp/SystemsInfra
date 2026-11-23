@@ -12,7 +12,7 @@ Answer the two questions with your notes closed. Check your answers against the 
 
 ## Week 1 · 2026-11-23 · Timers and latency histograms
 
-**Read** [`clock_gettime(2)`](https://man7.org/linux/man-pages/man2/clock_gettime.2.html) and [How NOT to Measure Latency](https://www.youtube.com/watch?v=lJ8ydIuPFeU).
+**Read** [`clock_gettime(2)`](https://man7.org/linux/man-pages/man2/clock_gettime.2.html) and [How NOT to Measure Latency](https://www.youtube.com/watch?v=lJ8ydIuPFeU). The week's sources, in reading order, are in [`resources/week-01-timers-and-histograms.md`](resources/week-01-timers-and-histograms.md).
 
 **Lab** Start [SI-01 benchkit](projects/README.md#si-01-benchkit) with a pinned `CLOCK_MONOTONIC` timing loop and percentile output. Measure the empty region and a short repeatable workload. Add a known delay to a small fraction of samples. Keep TSC calibration and a reusable histogram library for depth.
 

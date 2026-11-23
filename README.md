@@ -17,6 +17,7 @@ Owner: Sachin. Background: senior C++ on a sell-side OMS core. Time: about 8 to 
 | Folder | What goes there |
 |:--|:--|
 | [`ROADMAP.md`](ROADMAP.md) | The live plan: one subject per week, then a specialization choice at week 13 |
+| [`resources/`](resources/) | Weekly learning sources in reading order, one file per week |
 | [`tracks/`](tracks/) | Topic catalog: checklists, resources, exit criteria. Reference while doing the weekly plan |
 | [`projects/`](projects/) | Project catalog (SI-01 to SI-14) plus one folder per project when it starts |
 | [`log/`](log/) | Weekly entries grouped by month |
